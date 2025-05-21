@@ -40,9 +40,8 @@ jobs:
       - name: Execute tests
         run: vendor/bin/phpunit
 
-  test-coverage:
+  coverage:
     runs-on: ubuntu-latest
-
     name: Test Coverage
 
     steps:
@@ -60,17 +59,10 @@ jobs:
       - name: Install dependencies
         run: composer update --prefer-stable --prefer-dist --no-interaction --no-progress
 
-      - name: Install php-coveralls
-        run: composer require --dev php-coveralls/php-coveralls
-
-      - name: Verify Xdebug installation
-        run: php -r "var_dump(extension_loaded('xdebug'));"
-
       - name: Execute tests with coverage
         run: |
           mkdir -p build/logs
-          export XDEBUG_MODE=coverage
-          php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-clover build/logs/clover.xml
+          XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -79,8 +71,40 @@ jobs:
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
       
-      - name: Upload coverage to Coveralls
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract coverage percentage
+        id: extract_coverage
         run: |
-          vendor/bin/php-coveralls --coverage_clover=build/logs/clover.xml -v
+          COVERAGE=$(grep -Po '<coverage[^>]*line-rate="([^"]+)"' build/logs/clover.xml | grep -Po 'line-rate="([^"]+)"' | grep -Po '[0-9\.]+')
+          PERCENTAGE=$(echo "$COVERAGE * 100" | bc -l | xargs printf "%.2f")
+          echo "percentage=$PERCENTAGE" >> $GITHUB_OUTPUT
+          echo "Coverage percentage: $PERCENTAGE%"
+      
+      - name: Determine badge color
+        id: badge_color
+        run: |
+          PERCENTAGE=${{ steps.extract_coverage.outputs.percentage }}
+          if (( $(echo "$PERCENTAGE >= 90" | bc -l) )); then
+            COLOR="brightgreen"
+          elif (( $(echo "$PERCENTAGE >= 80" | bc -l) )); then
+            COLOR="green"
+          elif (( $(echo "$PERCENTAGE >= 70" | bc -l) )); then
+            COLOR="yellowgreen"
+          elif (( $(echo "$PERCENTAGE >= 60" | bc -l) )); then
+            COLOR="yellow"
+          elif (( $(echo "$PERCENTAGE >= 50" | bc -l) )); then
+            COLOR="orange"
+          else
+            COLOR="red"
+          fi
+          echo "color=$COLOR" >> $GITHUB_OUTPUT
+          echo "Badge color: $COLOR"
+      
+      - name: Create coverage badge
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: ${{ secrets.GIST_ID }}
+          filename: polyglot-coverage.json
+          label: coverage
+          message: ${{ steps.extract_coverage.outputs.percentage }}%
+          color: ${{ steps.badge_color.outputs.color }}

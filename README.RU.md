@@ -4,8 +4,7 @@
 [![GitHub Tests](https://img.shields.io/github/actions/workflow/status/bermudaphp/polyglot/tests.yml?branch=master&label=tests)](https://github.com/bermudaphp/polyglot/actions/workflows/tests.yml)
 [![Code Coverage](https://codecov.io/gh/bermudaphp/polyglot/branch/master/graph/badge.svg)](https://codecov.io/gh/bermudaphp/polyglot)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/bermudaphp/polyglot.svg)](https://packagist.org/packages/bermudaphp/polyglot)
-[![Build Status](https://img.shields.io/github/workflow/status/bermudaphp/polyglot/tests/master)](https://github.com/bermudaphp/polyglot/actions)
-[![License](https://img.shields.io/packagist/l/bermudaphp/polyglot.svg)](https://packagist.org/packages/bermudaphp/polyglot)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/bermudaphp/polyglot/blob/master/LICENSE)
 
 Polyglot — это мощная и гибкая библиотека для интернационализации (i18n) и локализации (l10n) PHP 8.4+ приложений с поддержкой форматирования сообщений ICU, множественного числа, кэширования и многого другого.
 

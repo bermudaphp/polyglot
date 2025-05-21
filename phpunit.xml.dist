@@ -17,11 +17,6 @@
     </testsuites>
 
     <coverage>
-        <report>
-            <html outputDirectory="build/coverage"/>
-            <clover outputFile="build/logs/clover.xml"/>
-            <text outputFile="php://stdout" showUncoveredFiles="true"/>
-        </report>
         <include>
             <directory suffix=".php">src</directory>
         </include>
@@ -42,13 +37,4 @@
         <env name="XDEBUG_MODE" value="coverage"/>
     </php>
 
-    <extensions>
-        <!-- Load external extensions if needed -->
-    </extensions>
-
-    <source>
-        <include>
-            <directory suffix=".php">src</directory>
-        </include>
-    </source>
 </phpunit>

@@ -25,8 +25,8 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: intl, mbstring
-          coverage: pcov
+          extensions: intl
+          coverage: none
           tools: composer:v2
 
       - name: Setup problem matchers
@@ -37,21 +37,13 @@ jobs:
       - name: Install dependencies
         run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress
 
-      - name: Execute tests with coverage
-        run: |
-          XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover=coverage.xml
+      - name: Execute tests
+        run: vendor/bin/phpunit
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-  static-analysis:
+  test-coverage:
     runs-on: ubuntu-latest
 
-    name: Static Analysis
+    name: Test Coverage
 
     steps:
       - name: Checkout code
@@ -61,11 +53,34 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.4
-          coverage: none
+          extensions: intl
+          coverage: pcov
           tools: composer:v2
 
       - name: Install dependencies
         run: composer update --prefer-stable --prefer-dist --no-interaction --no-progress
 
-      - name: Execute static analysis
-        run: vendor/bin/psalm --no-progress
+      - name: Execute tests with coverage
+        run: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover=coverage.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+      
+      - name: Generate coverage report for badge
+        run: |
+          TOTAL=$(grep -Po 'percent="([^"]+)' coverage.xml | grep -Po '[0-9\.]+' | head -1)
+          echo "COVERAGE=$TOTAL" >> $GITHUB_ENV
+          
+      - name: Create coverage badge
+        uses: schneegans/dynamic-badges-action@v1.6.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: gist_id_for_badge_placeholder
+          filename: polyglot-coverage.json
+          label: coverage
+          message: ${{ env.COVERAGE }}%
+          color: ${{ env.COVERAGE >= 90 && 'brightgreen' || env.COVERAGE >= 80 && 'green' || env.COVERAGE >= 70 && 'yellowgreen' || env.COVERAGE >= 60 && 'yellow' || env.COVERAGE >= 50 && 'orange' || 'red' }}

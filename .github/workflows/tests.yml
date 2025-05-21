@@ -127,6 +127,7 @@ jobs:
           fi
 
       - name: Extract coverage info with debugging
+        id: extract_coverage
         run: |
           # Install xml parsing tool
           sudo apt-get install -y xmlstarlet jq
@@ -144,7 +145,7 @@ jobs:
           xmlstarlet sel -t -v "(//file/@name)[1]" build/logs/clover.xml
           
           echo "===== Sample metrics ====="
-          xmlstarlet sel -t -v "(//file/metrics)[1]" build/logs/clover.xml
+          xmlstarlet sel -t -m "(//file/metrics)[1]" -v "concat('statements=', @statements, ', coveredstatements=', @coveredstatements, ', conditionals=', @conditionals, ', coveredconditionals=', @coveredconditionals, ', methods=', @methods, ', coveredmethods=', @coveredmethods)" build/logs/clover.xml
           
           echo "===== Extracting coverage data ====="
           STATEMENTS=$(xmlstarlet sel -t -v "sum(//file/metrics/@statements)" build/logs/clover.xml)

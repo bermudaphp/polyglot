@@ -37,17 +37,15 @@
             "Bermuda\\Polyglot\\Tests\\": "tests/"
         }
     },
-    "config": {
-        "sort-packages": true,
-        "platform": {
-            "php": "8.4.0"
-        }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "scripts": {
-        "scripts": {
         "test": "phpunit",
-        "phpstan": "phpstan analyse src --level=7"
-    }
+        "phpstan": "phpstan analyse src --level=7",
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

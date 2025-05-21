@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         executionOrder="random"
+         failOnWarning="true"
+         failOnRisky="true"
+         failOnEmptyTestSuite="true"
+         beStrictAboutOutputDuringTests="true"
+         cacheDirectory=".phpunit.cache"
+         requireCoverageMetadata="true">
+    <testsuites>
+        <testsuite name="Bermuda Polyglot Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage>
+        <report>
+            <html outputDirectory="build/coverage"/>
+            <clover outputFile="build/logs/clover.xml"/>
+            <text outputFile="php://stdout" showUncoveredFiles="true"/>
+        </report>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory>src/helpers.php</directory>
+            <file>src/bootstrap.php</file>
+        </exclude>
+    </coverage>
+
+    <logging>
+        <junit outputFile="build/logs/junit.xml"/>
+    </logging>
+
+    <php>
+        <ini name="error_reporting" value="E_ALL"/>
+        <ini name="memory_limit" value="512M"/>
+        <env name="PHPUNIT_TEST_SUITE" value="1"/>
+        <env name="XDEBUG_MODE" value="coverage"/>
+    </php>
+
+    <extensions>
+        <!-- Load external extensions if needed -->
+    </extensions>
+
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </source>
+</phpunit>

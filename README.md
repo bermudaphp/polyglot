@@ -2,7 +2,7 @@
 
 [![PHP Version Require](https://img.shields.io/badge/php-%3E%3D8.4-brightgreen.svg)](https://php.net/)
 [![GitHub Tests](https://img.shields.io/github/actions/workflow/status/bermudaphp/polyglot/tests.yml?branch=master&label=tests)](https://github.com/bermudaphp/polyglot/actions/workflows/tests.yml)
-[![Code Coverage](https://codecov.io/gh/bermudaphp/polyglot/branch/master/graph/badge.svg)](https://codecov.io/gh/bermudaphp/polyglot)
+[![Code Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/Shelamkoff/fa30b7e036077063fbed756e01a91934/raw/polyglot-coverage.json)](https://github.com/bermudaphp/polyglot/actions/workflows/tests.yml)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/bermudaphp/polyglot.svg)](https://packagist.org/packages/bermudaphp/polyglot)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/bermudaphp/polyglot/blob/master/LICENSE)
 

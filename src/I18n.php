@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Main facade for the library
  */
-final class I18n
+class I18n
 {
     private(set) TranslatorInterface $translator;
     private(set) LocaleDetectorInterface $localeDetector;

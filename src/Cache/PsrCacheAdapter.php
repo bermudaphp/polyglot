@@ -11,7 +11,7 @@ class PsrCacheAdapter implements MessageCacheInterface
 {
     public function __construct(
         private readonly CacheInterface $cache,
-        private readonly int                             $ttl = 3600
+        private readonly int $ttl = 3600
     ) {
     }
 
@@ -63,6 +63,6 @@ class PsrCacheAdapter implements MessageCacheInterface
 
     private function getCacheKey(string $locale, string $domain): string
     {
-        return "polyglot.translations.{$locale}.{$domain}";
+        return "polyglot.translations.$locale.$domain";
     }
 }

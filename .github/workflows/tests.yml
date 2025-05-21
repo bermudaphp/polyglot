@@ -55,10 +55,13 @@ jobs:
           php-version: 8.4
           extensions: intl, xdebug
           coverage: xdebug
-          tools: composer:v2, php-coveralls
+          tools: composer:v2
 
       - name: Install dependencies
         run: composer update --prefer-stable --prefer-dist --no-interaction --no-progress
+
+      - name: Install php-coveralls
+        run: composer require --dev php-coveralls/php-coveralls
 
       - name: Verify Xdebug installation
         run: php -r "var_dump(extension_loaded('xdebug'));"
@@ -80,4 +83,4 @@ jobs:
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          php-coveralls --coverage_clover=build/logs/clover.xml -v
+          vendor/bin/php-coveralls --coverage_clover=build/logs/clover.xml -v

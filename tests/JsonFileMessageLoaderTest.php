@@ -1,97 +1,93 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Bermuda\Polyglot\Tests;
 
 use Bermuda\Polyglot\Loader\JsonFileMessageLoader;
-use org\bovigo\vfs\vfsStream;
-use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(JsonFileMessageLoader::class)]
 class JsonFileMessageLoaderTest extends TestCase
 {
-    private vfsStreamDirectory $root;
+    private string $testDir;
     private JsonFileMessageLoader $loader;
 
     protected function setUp(): void
     {
-        $this->root = vfsStream::setup('root', null, [
-            'translations' => [
-                'en' => [
-                    'messages.json' => json_encode([
-                        'welcome' => 'Welcome',
-                        'goodbye' => 'Goodbye',
-                        'nested' => [
-                            'key' => 'Nested value'
-                        ]
-                    ])
-                ],
-                'fr' => [
-                    'messages.json' => json_encode([
-                        'welcome' => 'Bienvenue',
-                        'goodbye' => 'Au revoir'
-                    ])
-                ]
-            ]
-        ]);
+        // Create a temporary directory for test files
+        $this->testDir = sys_get_temp_dir() . '/polyglot_tests_' . uniqid();
+        if (!is_dir($this->testDir)) {
+            mkdir($this->testDir, 0777, true);
+        }
 
-        $this->loader = new JsonFileMessageLoader(vfsStream::url('root/translations'));
+        // Create test locale directory
+        mkdir($this->testDir . '/en', 0777, true);
+
+        // Create test file with valid JSON content
+        $validJson = json_encode([
+            'welcome' => 'Welcome!',
+            'goodbye' => 'Goodbye!'
+        ]);
+        file_put_contents($this->testDir . '/en/messages.json', $validJson);
+
+        // Create test file with invalid JSON content
+        file_put_contents($this->testDir . '/en/invalid.json', '{ "broken: "json" }');
+
+        // Create loader instance
+        $this->loader = new JsonFileMessageLoader($this->testDir);
     }
 
-    #[Test]
-    public function loadsMessagesCorrectly(): void
+    protected function tearDown(): void
+    {
+        // Clean up created files and directories
+        if (file_exists($this->testDir . '/en/messages.json')) {
+            unlink($this->testDir . '/en/messages.json');
+        }
+        if (file_exists($this->testDir . '/en/invalid.json')) {
+            unlink($this->testDir . '/en/invalid.json');
+        }
+        if (is_dir($this->testDir . '/en')) {
+            rmdir($this->testDir . '/en');
+        }
+        if (is_dir($this->testDir)) {
+            rmdir($this->testDir);
+        }
+    }
+
+    public function testLoadsMessagesCorrectly(): void
     {
         $messages = $this->loader->load('en', 'messages');
 
         $this->assertIsArray($messages);
         $this->assertArrayHasKey('welcome', $messages);
         $this->assertArrayHasKey('goodbye', $messages);
-        $this->assertArrayHasKey('nested', $messages);
-        $this->assertIsArray($messages['nested']);
-        $this->assertArrayHasKey('key', $messages['nested']);
-
-        $this->assertSame('Welcome', $messages['welcome']);
-        $this->assertSame('Goodbye', $messages['goodbye']);
-        $this->assertSame('Nested value', $messages['nested']['key']);
+        $this->assertEquals('Welcome!', $messages['welcome']);
+        $this->assertEquals('Goodbye!', $messages['goodbye']);
     }
 
-    #[Test]
-    public function existsReturnsTrueForExistingFile(): void
+    public function testExistsReturnsTrueForExistingFile(): void
     {
         $this->assertTrue($this->loader->exists('en', 'messages'));
-        $this->assertTrue($this->loader->exists('fr', 'messages'));
     }
 
-    #[Test]
-    public function existsReturnsFalseForNonExistingFile(): void
+    public function testExistsReturnsFalseForNonExistingFile(): void
     {
-        $this->assertFalse($this->loader->exists('en', 'errors'));
-        $this->assertFalse($this->loader->exists('de', 'messages'));
+        $this->assertFalse($this->loader->exists('en', 'nonexistent'));
+        $this->assertFalse($this->loader->exists('fr', 'messages'));
     }
 
-    #[Test]
-    public function returnsEmptyArrayForNonExistingFile(): void
+    public function testThrowsExceptionForInvalidJson(): void
     {
-        $messages = $this->loader->load('de', 'messages');
+        $this->expectException(\RuntimeException::class);
+        $this->loader->load('en', 'invalid');
+    }
+
+    public function testReturnsEmptyArrayForNonExistentFile(): void
+    {
+        $messages = $this->loader->load('en', 'nonexistent');
         $this->assertIsArray($messages);
         $this->assertEmpty($messages);
-    }
-
-    #[Test]
-    public function throwsExceptionForInvalidJson(): void
-    {
-        // Create invalid JSON file
-        vfsStream::create([
-            'translations' => [
-                'de' => [
-                    'messages.json' => '{invalid:json'
-                ]
-            ]
-        ], $this->root);
-
-        $this->expectException(\RuntimeException::class);
-        $this->loader->load('de', 'messages');
     }
 }

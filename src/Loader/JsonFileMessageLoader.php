@@ -46,4 +46,9 @@ class JsonFileMessageLoader implements MessageLoaderInterface
 
         return $messages ?? [];
     }
+
+    protected function getExtension(): string
+    {
+        return 'json';
+    }
 }

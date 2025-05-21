@@ -71,13 +71,33 @@ jobs:
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
       
+      - name: Check clover.xml format
+        run: |
+          echo "First 20 lines of clover.xml:"
+          head -n 20 build/logs/clover.xml
+          
       - name: Extract coverage percentage
         id: extract_coverage
         run: |
-          COVERAGE=$(grep -Po '<coverage[^>]*line-rate="([^"]+)"' build/logs/clover.xml | grep -Po 'line-rate="([^"]+)"' | grep -Po '[0-9\.]+')
-          PERCENTAGE=$(echo "$COVERAGE * 100" | bc -l | xargs printf "%.2f")
+          # Install xml parsing tool
+          sudo apt-get install -y xmlstarlet
+          
+          # Extract coverage using xmlstarlet
+          COVERAGE=$(xmlstarlet sel -t -v "sum(//file/metrics/@statements)" -o "/" -v "sum(//file/metrics/@coveredstatements)" build/logs/clover.xml)
+          
+          # Calculate percentage
+          TOTAL=$(echo $COVERAGE | cut -d'/' -f1)
+          COVERED=$(echo $COVERAGE | cut -d'/' -f2)
+          
+          # Check for division by zero
+          if [ "$TOTAL" -eq "0" ]; then
+            PERCENTAGE="0.00"
+          else
+            PERCENTAGE=$(echo "scale=2; 100 * $COVERED / $TOTAL" | bc)
+          fi
+          
           echo "percentage=$PERCENTAGE" >> $GITHUB_OUTPUT
-          echo "Coverage percentage: $PERCENTAGE%"
+          echo "Coverage percentage: $PERCENTAGE% ($COVERED/$TOTAL statements covered)"
       
       - name: Determine badge color
         id: badge_color

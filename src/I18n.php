@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * Main facade for the library
  */
-class I18n
+final class I18n
 {
     private(set) TranslatorInterface $translator;
     private(set) LocaleDetectorInterface $localeDetector;
@@ -65,7 +65,7 @@ class I18n
      * Set the current locale
      * @throws InvalidLocaleException
      */
-    public function setLocale(string|Locale $locale): self
+    public function setLocale(string|Locale|LocaleEnum $locale): self
     {
         $this->translator->locale = $locale;
         return $this;
@@ -78,6 +78,7 @@ class I18n
 
     /**
      * Detect and set the locale based on configured detectors
+     * @throws InvalidLocaleException
      */
     public function detectAndSetLocale(?string $defaultLocale = null): self
     {

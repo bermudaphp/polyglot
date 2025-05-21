@@ -11,9 +11,6 @@ class PhpArrayMessageLoader implements MessageLoaderInterface
 {
     use FileLoader;
 
-    /** @var string */
-    private string $resourcesPath;
-
     /**
      * @param string $resourcesPath Base path for translation files
      */

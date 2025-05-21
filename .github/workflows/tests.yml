@@ -70,11 +70,6 @@ jobs:
           file: ./build/logs/clover.xml
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
-      
-      - name: Check clover.xml format
-        run: |
-          echo "First 20 lines of clover.xml:"
-          head -n 20 build/logs/clover.xml
           
       - name: Extract coverage percentage
         id: extract_coverage
@@ -119,12 +114,33 @@ jobs:
           echo "color=$COLOR" >> $GITHUB_OUTPUT
           echo "Badge color: $COLOR"
       
-      - name: Create coverage badge
-        uses: schneegans/dynamic-badges-action@v1.6.0
-        with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: ${{ secrets.GIST_ID }}
-          filename: polyglot-coverage.json
-          label: coverage
-          message: ${{ steps.extract_coverage.outputs.percentage }}%
-          color: ${{ steps.badge_color.outputs.color }}
+      - name: Update coverage badge via direct API call
+        env:
+          GIST_ID: ${{ secrets.GIST_ID }}
+          GIST_TOKEN: ${{ secrets.GIST_SECRET }}
+          PERCENTAGE: ${{ steps.extract_coverage.outputs.percentage }}
+          COLOR: ${{ steps.badge_color.outputs.color }}
+        run: |
+          # Create JSON data for the badge
+          BADGE_JSON='{
+            "schemaVersion": 1,
+            "label": "coverage",
+            "message": "'$PERCENTAGE'%",
+            "color": "'$COLOR'"
+          }'
+          
+          # Create JSON payload for GitHub API
+          GIST_CONTENT='{
+            "files": {
+              "polyglot-coverage.json": {
+                "content": '$(echo "$BADGE_JSON" | jq -R .)' 
+              }
+            }
+          }'
+          
+          # Update the Gist using curl
+          curl -X PATCH \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token $GIST_TOKEN" \
+            -d "$GIST_CONTENT" \
+            "https://api.github.com/gists/$GIST_ID"

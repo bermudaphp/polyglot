@@ -53,34 +53,31 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.4
-          extensions: intl
-          coverage: pcov
-          tools: composer:v2
+          extensions: intl, xdebug
+          coverage: xdebug
+          tools: composer:v2, php-coveralls
 
       - name: Install dependencies
         run: composer update --prefer-stable --prefer-dist --no-interaction --no-progress
 
+      - name: Verify Xdebug installation
+        run: php -r "var_dump(extension_loaded('xdebug'));"
+
       - name: Execute tests with coverage
-        run: XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover=coverage.xml
+        run: |
+          mkdir -p build/logs
+          export XDEBUG_MODE=coverage
+          php -d xdebug.mode=coverage vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
-          file: ./coverage.xml
+          file: ./build/logs/clover.xml
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
       
-      - name: Generate coverage report for badge
+      - name: Upload coverage to Coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TOTAL=$(grep -Po 'percent="([^"]+)' coverage.xml | grep -Po '[0-9\.]+' | head -1)
-          echo "COVERAGE=$TOTAL" >> $GITHUB_ENV
-          
-      - name: Create coverage badge
-        uses: schneegans/dynamic-badges-action@v1.6.0
-        with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: gist_id_for_badge_placeholder
-          filename: polyglot-coverage.json
-          label: coverage
-          message: ${{ env.COVERAGE }}%
-          color: ${{ env.COVERAGE >= 90 && 'brightgreen' || env.COVERAGE >= 80 && 'green' || env.COVERAGE >= 70 && 'yellowgreen' || env.COVERAGE >= 60 && 'yellow' || env.COVERAGE >= 50 && 'orange' || 'red' }}
+          php-coveralls --coverage_clover=build/logs/clover.xml -v

@@ -5,7 +5,6 @@
 [![Code Coverage](https://codecov.io/gh/bermudaphp/polyglot/branch/master/graph/badge.svg)](https://codecov.io/gh/bermudaphp/polyglot)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/bermudaphp/polyglot.svg)](https://packagist.org/packages/bermudaphp/polyglot)
 [![Build Status](https://img.shields.io/github/workflow/status/bermudaphp/polyglot/tests/master)](https://github.com/bermudaphp/polyglot/actions)
-[![PHP Version](https://img.shields.io/packagist/php-v/bermudaphp/polyglot.svg)](https://packagist.org/packages/bermudaphp/polyglot)
 [![License](https://img.shields.io/packagist/l/bermudaphp/polyglot.svg)](https://packagist.org/packages/bermudaphp/polyglot)
 
 Polyglot is a powerful, flexible internationalization (i18n) and localization (l10n) library for PHP 8.4+ applications with support for ICU message formatting, pluralization, caching, and more.

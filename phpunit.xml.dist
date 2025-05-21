@@ -9,8 +9,7 @@
          failOnEmptyTestSuite="true"
          beStrictAboutOutputDuringTests="true"
          cacheResult="true"
-         cacheDirectory=".phpunit.cache"
-         requireCoverageMetadata="false">
+         cacheDirectory=".phpunit.cache">
     <testsuites>
         <testsuite name="Bermuda Polyglot Test Suite">
             <directory>tests</directory>
@@ -27,13 +26,7 @@
         </exclude>
     </source>
 
-    <coverage includeUncoveredFiles="true">
-        <report>
-            <clover outputFile="build/logs/clover.xml"/>
-            <html outputDirectory="build/coverage"/>
-            <text outputFile="php://stdout" showOnlySummary="false"/>
-        </report>
-    </coverage>
+    <!-- Покрытие кода настраивается в workflow, а не здесь -->
 
     <logging>
         <junit outputFile="build/logs/junit.xml"/>
